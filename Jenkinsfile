@@ -11,20 +11,19 @@ pipeline {
         stage('Build & Test') {
             steps {
                 sh '''
-                    # Download and use Maven wrapper
-                    if [ ! -f "mvnw" ]; then
-                        curl -s https://repo1.maven.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar -o maven-wrapper.jar
-                        java -jar maven-wrapper.jar download
+                    # Use system Maven (already installed in Jenkins)
+                    which mvn || echo "Maven not found, trying alternatives..."
+                    
+                    # If Maven not available, use direct Java execution
+                    if ! command -v mvn &> /dev/null; then
+                        echo "Using Java directly to compile and run tests..."
+                        javac -cp "$(find . -name "*.jar" | tr '\n' ':')target/classes" src/test/java/com/example/SimpleTest.java
+                        java -cp "$(find . -name "*.jar" | tr '\n' ':')target/test-classes" org.testng.TestNG testng.xml
+                    else
+                        mvn clean test
                     fi
-                    ./mvnw clean test
                 '''
             }
-        }
-    }
-    
-    post {
-        always {
-            archiveArtifacts 'target/surefire-reports/**/*'
         }
     }
 }
