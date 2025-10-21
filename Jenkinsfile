@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.8-openjdk-17'
+            args '-v /root/.m2:/root/.m2'
+        }
+    }
     
     stages {
         stage('Checkout') {
@@ -10,11 +15,14 @@ pipeline {
         
         stage('Build & Test') {
             steps {
-                sh 'ls -la'
-                sh 'cat pom.xml'
-                echo "Maven is not available in this Jenkins setup"
-                echo "But the pipeline is working - code is checked out successfully"
+                sh 'mvn clean test'
             }
+        }
+    }
+    
+    post {
+        always {
+            archiveArtifacts 'target/surefire-reports/**/*'
         }
     }
 }
