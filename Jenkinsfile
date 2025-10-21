@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.8-openjdk-17'
-            args '-v /root/.m2:/root/.m2'
-        }
-    }
+    agent any
     
     stages {
         stage('Checkout') {
@@ -15,7 +10,14 @@ pipeline {
         
         stage('Build & Test') {
             steps {
-                sh 'mvn clean test'
+                sh '''
+                    # Download and use Maven wrapper
+                    if [ ! -f "mvnw" ]; then
+                        curl -s https://repo1.maven.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar -o maven-wrapper.jar
+                        java -jar maven-wrapper.jar download
+                    fi
+                    ./mvnw clean test
+                '''
             }
         }
     }
