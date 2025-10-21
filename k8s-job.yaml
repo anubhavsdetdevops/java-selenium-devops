@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: java-test-runner
+spec:
+  template:
+    spec:
+      containers:
+      - name: test-executor
+        image: gcr.io/premium-episode-475111-c1/my-java-tests:v1
+      restartPolicy: Never
+  backoffLimit: 2
