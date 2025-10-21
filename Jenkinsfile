@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/anubhavsdetdevops/java-selenium-devops.git'
+                git branch: 'master', url: 'https://github.com/anubhavsdetdevops/java-selenium-devops.git'
             }
         }
         
@@ -12,16 +12,16 @@ pipeline {
             steps {
                 sh 'mvn clean test'
             }
-        }
-    }
-    
-    post {
-        always {
-            publishHTML target: [
-                reportDir: 'target/surefire-reports',
-                reportFiles: 'index.html',
-                reportName: 'Test Report'
-            ]
+            post {
+                always {
+                    archiveArtifacts 'target/surefire-reports/**/*'
+                    publishHTML target: [
+                        reportDir: 'target/surefire-reports',
+                        reportFiles: 'index.html',
+                        reportName: 'TestNG Report'
+                    ]
+                }
+            }
         }
     }
 }
